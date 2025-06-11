@@ -591,35 +591,48 @@ public class Main {
     import java.beans.PropertyChangeEvent;
     import java.beans.PropertyChangeListener;
     
-    public class TableRowHeader extends JList<String> {
-        public TableRowHeader(JTable table) {
-            setFixedCellWidth(50);
-            setFixedCellHeight(table.getRowHeight());
-            setFont(table.getTableHeader().getFont());
-    
-            DefaultListModel<String> model = new DefaultListModel<>();
-            for (int i = 0; i < table.getRowCount(); i++) {
-                model.addElement(String.valueOf(i + 1));
-            }
-            setModel(model);
-    
-            table.addPropertyChangeListener("model", new PropertyChangeListener() {
-                @Override
-                public void propertyChange(PropertyChangeEvent evt) {
-                    updateModel(table);
-                }
-            });
+   public class TableRowHeader extends JList<String> {
+
+    /**
+     * Crea una cabecera de filas sincronizada con la tabla dada.
+     *
+     * @param table La {@link JTable} con la que se vinculará esta cabecera de filas.
+     */
+    public TableRowHeader(JTable table) {
+        // Establece el ancho fijo y la altura de celda igual a la tabla
+        setFixedCellWidth(50);
+        setFixedCellHeight(table.getRowHeight());
+        setFont(table.getTableHeader().getFont());
+
+        // Crea y asigna el modelo con los números de fila iniciales
+        DefaultListModel<String> model = new DefaultListModel<>();
+        for (int i = 0; i < table.getRowCount(); i++) {
+            model.addElement(String.valueOf(i + 1));
         }
-    
-        private void updateModel(JTable table) {
-            DefaultListModel<String> model = new DefaultListModel<>();
-            for (int i = 0; i < table.getRowCount(); i++) {
-                model.addElement(String.valueOf(i + 1));
+        setModel(model);
+
+        // Escucha los cambios en el modelo de la tabla para actualizar la cabecera
+        table.addPropertyChangeListener("model", new PropertyChangeListener() {
+            @Override
+            public void propertyChange(PropertyChangeEvent evt) {
+                updateModel(table);
             }
-            setModel(model);
-        }
+        });
     }
 
+    /**
+     * Actualiza el modelo de la lista para reflejar el número de filas actual de la tabla.
+     *
+     * @param table La tabla cuyos datos serán utilizados para actualizar la cabecera.
+     */
+    private void updateModel(JTable table) {
+        DefaultListModel<String> model = new DefaultListModel<>();
+        for (int i = 0; i < table.getRowCount(); i++) {
+            model.addElement(String.valueOf(i + 1));
+        }
+        setModel(model);
+    }
+}
 # VentanaHash.java
 
     package com.hojacalculo;
