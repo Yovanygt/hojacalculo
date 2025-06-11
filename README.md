@@ -445,85 +445,143 @@ public class Main {
     import com.hojacalculo.model.Formula;
     import javax.swing.table.AbstractTableModel;
     
-    public class TablaModelo extends AbstractTableModel {
-        private MatrizOrtogonal matriz;
-        private Formula formula;
-        private String[] columnas;
-    
-        public TablaModelo(MatrizOrtogonal matriz) {
-            this.matriz = matriz;
-            this.formula = new Formula(matriz);
-            this.columnas = new String[matriz.getColumnas()];
-            for (int i = 0; i < columnas.length; i++) {
-                columnas[i] = String.valueOf((char) ('A' + i));
-            }
-        }
-    
-        public void setMatriz(MatrizOrtogonal nuevaMatriz) {
-            this.matriz = nuevaMatriz;
-            this.formula = new Formula(nuevaMatriz);
-            fireTableDataChanged();
-        }
-    
-        @Override
-        public int getRowCount() {
-            return matriz.getFilas();
-        }
-    
-        @Override
-        public int getColumnCount() {
-            return matriz.getColumnas();
-        }
-    
-        @Override
-        public String getColumnName(int col) {
-            return columnas[col];
-        }
-    
-        @Override
-        public Object getValueAt(int fila, int columna) {
-            NodoCelda celda = matriz.buscar(fila, columna);
-            if (celda == null) return "";
-            if (celda.hasFormula()) {
-                try {
-                    return formula.evaluar(celda.getFormula());
-                } catch (Exception e) {
-                    return "Error";
-                }
-            }
-            return celda.getValor() != null ? celda.getValor() : "";
-        }
-    
-        @Override
-        public void setValueAt(Object valor, int fila, int columna) {
-            String entrada = valor.toString().trim();
-            if (entrada.isEmpty()) return;
-    
-            NodoCelda celda = new NodoCelda(fila, columna);
-    
-            if (entrada.toLowerCase().startsWith("suma(")
-                    || entrada.toLowerCase().startsWith("resta(")
-                    || entrada.toLowerCase().startsWith("multiplicacion(")
-                    || entrada.toLowerCase().startsWith("division(")) {
-                celda.setFormula(entrada);
-            } else {
-                try {
-                    double numero = Double.parseDouble(entrada);
-                    celda.setValor(numero);
-                } catch (NumberFormatException e) {
-                    celda.setValor(entrada);
-                }
-            }
-    
-            matriz.insertar(celda);
-            fireTableDataChanged();
-        }
-    
-        @Override
-        public boolean isCellEditable(int rowIndex, int columnIndex) {
-            return true;
+   public class TablaModelo extends AbstractTableModel {
+
+    /** Matriz ortogonal que almacena los datos y fórmulas de las celdas. */
+    private MatrizOrtogonal matriz;
+
+    /** Evaluador de fórmulas que interpreta cadenas como suma(), resta(), etc. */
+    private Formula formula;
+
+    /** Nombres de las columnas (A, B, C, ...) para mostrar en la tabla. */
+    private String[] columnas;
+
+    /**
+     * Constructor que inicializa el modelo con una matriz ortogonal dada.
+     * También genera los encabezados de columna de forma alfabética (A-Z).
+     *
+     * @param matriz la matriz ortogonal que contiene los datos de la hoja.
+     */
+    public TablaModelo(MatrizOrtogonal matriz) {
+        this.matriz = matriz;
+        this.formula = new Formula(matriz);
+        this.columnas = new String[matriz.getColumnas()];
+        for (int i = 0; i < columnas.length; i++) {
+            columnas[i] = String.valueOf((char) ('A' + i));
         }
     }
+
+    /**
+     * Cambia la matriz usada por el modelo y actualiza el evaluador de fórmulas.
+     *
+     * @param nuevaMatriz la nueva matriz ortogonal a utilizar.
+     */
+    public void setMatriz(MatrizOrtogonal nuevaMatriz) {
+        this.matriz = nuevaMatriz;
+        this.formula = new Formula(nuevaMatriz);
+        fireTableDataChanged(); // Notifica a la tabla que los datos cambiaron
+    }
+
+    /**
+     * Retorna el número de filas de la matriz.
+     *
+     * @return la cantidad de filas.
+     */
+    @Override
+    public int getRowCount() {
+        return matriz.getFilas();
+    }
+
+    /**
+     * Retorna el número de columnas de la matriz.
+     *
+     * @return la cantidad de columnas.
+     */
+    @Override
+    public int getColumnCount() {
+        return matriz.getColumnas();
+    }
+
+    /**
+     * Retorna el nombre de una columna dado su índice (por ejemplo, "A", "B"...).
+     *
+     * @param col índice de la columna.
+     * @return nombre de la columna.
+     */
+    @Override
+    public String getColumnName(int col) {
+        return columnas[col];
+    }
+
+    /**
+     * Obtiene el valor que se debe mostrar en una celda de la tabla.
+     * Si la celda contiene una fórmula, se evalúa y se muestra el resultado.
+     * En caso de error durante la evaluación, se muestra "Error".
+     *
+     * @param fila índice de fila.
+     * @param columna índice de columna.
+     * @return valor evaluado o literal de la celda.
+     */
+    @Override
+    public Object getValueAt(int fila, int columna) {
+        NodoCelda celda = matriz.buscar(fila, columna);
+        if (celda == null) return "";
+        if (celda.hasFormula()) {
+            try {
+                return formula.evaluar(celda.getFormula());
+            } catch (Exception e) {
+                return "Error";
+            }
+        }
+        return celda.getValor() != null ? celda.getValor() : "";
+    }
+
+    /**
+     * Establece el contenido de una celda, interpretando si es un número, texto o fórmula.
+     * Si la entrada comienza con palabras clave como "suma(", "resta(", etc., se guarda como fórmula.
+     * Si es un número, se almacena como valor numérico; de lo contrario, como texto literal.
+     *
+     * @param valor entrada del usuario (como texto).
+     * @param fila índice de fila.
+     * @param columna índice de columna.
+     */
+    @Override
+    public void setValueAt(Object valor, int fila, int columna) {
+        String entrada = valor.toString().trim();
+        if (entrada.isEmpty()) return;
+
+        NodoCelda celda = new NodoCelda(fila, columna);
+
+        if (entrada.toLowerCase().startsWith("suma(")
+                || entrada.toLowerCase().startsWith("resta(")
+                || entrada.toLowerCase().startsWith("multiplicacion(")
+                || entrada.toLowerCase().startsWith("division(")) {
+            celda.setFormula(entrada);
+        } else {
+            try {
+                double numero = Double.parseDouble(entrada);
+                celda.setValor(numero);
+            } catch (NumberFormatException e) {
+                celda.setValor(entrada);
+            }
+        }
+
+        matriz.insertar(celda);
+        fireTableDataChanged(); // Notifica a la tabla que se actualizó la celda
+    }
+
+    /**
+     * Indica que todas las celdas son editables en este modelo.
+     *
+     * @param rowIndex índice de la fila.
+     * @param columnIndex índice de la columna.
+     * @return {@code true} siempre, ya que todas las celdas son editables.
+     */
+    @Override
+    public boolean isCellEditable(int rowIndex, int columnIndex) {
+        return true;
+    }
+}
 
 # TableRowHeader.java
 
