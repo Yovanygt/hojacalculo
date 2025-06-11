@@ -311,61 +311,130 @@ public class Main {
 
     package com.hojacalculo;
     
-    import javax.swing.table.AbstractTableModel;
-    
     public class TablaHashModelo extends AbstractTableModel {
-        private final Object[][] datos;
-        private final String[] columnas = {"Dato", "Índice Hash"};
-    
-        public TablaHashModelo(int filas) {
-            datos = new Object[filas][2]; // columna 0 = dato, columna 1 = hash
-        }
-    
-        @Override
-        public int getRowCount() {
-            return datos.length;
-        }
-    
-        @Override
-        public int getColumnCount() {
-            return columnas.length;
-        }
-    
-        @Override
-        public String getColumnName(int col) {
-            return columnas[col];
-        }
-    
-        @Override
-        public Object getValueAt(int fila, int columna) {
-            return datos[fila][columna];
-        }
-    
-        @Override
-        public boolean isCellEditable(int fila, int columna) {
-            return columna == 0; // Solo se edita la columna de datos
-        }
-    
-        @Override
-        public void setValueAt(Object valor, int fila, int columna) {
-            if (columna == 0) {
-                String texto = valor.toString();
-                datos[fila][0] = texto;
-                datos[fila][1] = calcularHash(texto);
-    
-                // ✅ Forzar redibujo de la fila entera (dato + hash)
-                fireTableRowsUpdated(fila, fila);
-            }
-        }
-    
-        private int calcularHash(String texto) {
-            int hash = 0;
-            for (char c : texto.toCharArray()) {
-                hash += c;
-            }
-            return hash % 997; // Número primo para dispersión
+
+    /** Matriz de datos en la que cada fila representa un par [dato, índice hash]. */
+    private final Object[][] datos;
+
+    /** Nombres de las columnas del modelo. */
+    private final String[] columnas = {"Dato", "Índice Hash"};
+
+    /**
+     * Crea una instancia del modelo de tabla con la cantidad de filas especificada.
+     * <p>
+     * Se inicializa la matriz de datos con dos columnas, donde la columna 0
+     * almacenará el dato y la columna 1 el hash calculado del dato.
+     * </p>
+     *
+     * @param filas el número de filas que tendrá la tabla.
+     */
+    public TablaHashModelo(int filas) {
+        datos = new Object[filas][2]; // Columna 0 = dato, columna 1 = hash
+    }
+
+    /**
+     * Retorna el número de filas del modelo.
+     *
+     * @return la cantidad de filas del arreglo de datos.
+     */
+    @Override
+    public int getRowCount() {
+        return datos.length;
+    }
+
+    /**
+     * Retorna el número de columnas del modelo.
+     *
+     * @return la cantidad de columnas definidas.
+     */
+    @Override
+    public int getColumnCount() {
+        return columnas.length;
+    }
+
+    /**
+     * Retorna el nombre de la columna en la posición dada.
+     *
+     * @param col el índice de la columna.
+     * @return el nombre de la columna.
+     */
+    @Override
+    public String getColumnName(int col) {
+        return columnas[col];
+    }
+
+    /**
+     * Retorna el valor almacenado en una celda especifica dada por fila y columna.
+     *
+     * @param fila el índice de la fila.
+     * @param columna el índice de la columna.
+     * @return el valor en la celda especificada.
+     */
+    @Override
+    public Object getValueAt(int fila, int columna) {
+        return datos[fila][columna];
+    }
+
+    /**
+     * Indica si una celda es editable.
+     * <p>
+     * En este modelo, únicamente es editable la columna correspondiente a los datos (índice 0).
+     * </p>
+     *
+     * @param fila el índice de la fila.
+     * @param columna el índice de la columna.
+     * @return {@code true} si se puede editar la celda; {@code false} en caso contrario.
+     */
+    @Override
+    public boolean isCellEditable(int fila, int columna) {
+        // Solo se edita la columna de datos
+        return columna == 0;
+    }
+
+    /**
+     * Establece el valor de una celda, recalculando y actualizando
+     * el valor del hash asociado en la columna correspondiente.
+     * <p>
+     * Si se edita la celda de la columna 0, se actualiza el dato y se
+     * calcula el nuevo hash que se almacena en la columna 1. Luego se
+     * notifica al modelo que la fila ha sido actualizada.
+     * </p>
+     *
+     * @param valor el nuevo valor a asignar.
+     * @param fila  el índice de la fila.
+     * @param columna  el índice de la columna.
+     */
+    @Override
+    public void setValueAt(Object valor, int fila, int columna) {
+        if (columna == 0) {
+            String texto = valor.toString();
+            datos[fila][0] = texto;
+            datos[fila][1] = calcularHash(texto);
+            
+            // Forzar el redibujo de la fila entera (dato + hash)
+            fireTableRowsUpdated(fila, fila);
         }
     }
+
+    /**
+     * Calcula el índice hash de una cadena de texto.
+     * <p>
+     * El hash se calcula sumando el valor numérico de cada carácter y
+     * aplicando el módulo 997 (número primo) al resultado para mejorar
+     * la dispersión.
+     * </p>
+     *
+     * @param texto la cadena de texto sobre la que se calculará el hash.
+     * @return el valor hash calculado.
+     */
+    private int calcularHash(String texto) {
+        int hash = 0;
+        for (char c : texto.toCharArray()) {
+            hash += c;
+        }
+        return hash % 997; // Número primo para dispersión
+    }
+}
 
 # TablaModelo.java
 
