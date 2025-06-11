@@ -105,7 +105,6 @@ public class Main {
                     - Gerson Díaz
                     - Yovany García
 
-                    Este proyecto fue creado como parte de un ejercicio académico que implementa una matriz ortogonal para representar datos, listas enlazadas para manejar múltiples hojas y generación de tabla hash.
                     """;
                 JOptionPane.showMessageDialog(null, mensaje, "Acerca de", JOptionPane.INFORMATION_MESSAGE);
             });
