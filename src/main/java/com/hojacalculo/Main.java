@@ -8,18 +8,34 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 
 public class Main {
+
+    /** Lista enlazada de hojas de cálculo disponibles en la aplicación. */
     private static ListaHojas listaHojas = new ListaHojas();
+
+    /** Referencia a la hoja actualmente seleccionada. */
     private static HojaTrabajo hojaActual;
+
+    /** Tabla que representa visualmente la hoja de cálculo. */
     private static JTable tabla;
+
+    /** Modelo personalizado de tabla que permite visualizar la matriz ortogonal. */
     private static TablaModelo modelo;
 
+    /**
+     * Método principal que inicializa y ejecuta la interfaz gráfica.
+     *
+     * @param args argumentos de línea de comandos (no utilizados).
+     */
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
+
+            // Crear y configurar la ventana principal
             JFrame frame = new JFrame("Hoja de Cálculo con Múltiples Hojas");
             frame.setSize(1200, 600);
             frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
             frame.setLayout(new BorderLayout());
 
+            // Menú superior
             JMenuBar menuBar = new JMenuBar();
             JMenu archivoMenu = new JMenu("Archivo");
             JMenu ayudaMenu = new JMenu("Ayuda");
@@ -28,6 +44,7 @@ public class Main {
             JMenuItem itemAbrirHoja = new JMenuItem("Abrir hoja");
             JMenuItem itemTablaHash = new JMenuItem("Tabla hash");
 
+            // Acerca de
             JMenuItem itemAcercaDe = new JMenuItem("Acerca de");
             itemAcercaDe.addActionListener(e -> {
                 String mensaje = """
@@ -50,10 +67,11 @@ public class Main {
             ayudaMenu.add(itemAcercaDe);
 
             menuBar.add(archivoMenu);
-            menuBar.add(new JMenu("Insertar"));
+            menuBar.add(new JMenu("Insertar")); // sin funcionalidad actual
             menuBar.add(ayudaMenu);
             frame.setJMenuBar(menuBar);
 
+            // Panel para selección de hojas
             JComboBox<String> selectorHojas = new JComboBox<>();
             JButton btnNuevaHoja = new JButton("Nueva Hoja");
 
@@ -63,6 +81,7 @@ public class Main {
             panelSuperior.add(btnNuevaHoja);
             frame.add(panelSuperior, BorderLayout.NORTH);
 
+            // Crear primera hoja y tabla inicial
             listaHojas.agregarHoja("Hoja1");
             hojaActual = listaHojas.getPrimeraHoja();
             selectorHojas.addItem(hojaActual.getNombre());
@@ -74,6 +93,7 @@ public class Main {
             tabla.setShowGrid(true);
             tabla.setGridColor(Color.LIGHT_GRAY);
 
+            // Centrar contenido de las celdas
             DefaultTableCellRenderer renderer = new DefaultTableCellRenderer();
             renderer.setHorizontalAlignment(SwingConstants.CENTER);
             for (int i = 0; i < tabla.getColumnCount(); i++) {
@@ -81,9 +101,10 @@ public class Main {
             }
 
             JScrollPane scrollPane = new JScrollPane(tabla);
-            scrollPane.setRowHeaderView(new TableRowHeader(tabla));
+            scrollPane.setRowHeaderView(new TableRowHeader(tabla)); // Para índices de fila
             frame.add(scrollPane, BorderLayout.CENTER);
 
+            // Panel inferior para mostrar celda activa y fórmula
             JLabel etiquetaCelda = new JLabel("Celda:");
             etiquetaCelda.setFont(new Font("Arial", Font.BOLD, 14));
 
@@ -105,6 +126,7 @@ public class Main {
             panelFormula.add(campoFormula);
             frame.add(panelFormula, BorderLayout.SOUTH);
 
+            // Manejador para cambio de selección de celda
             ListSelectionListener listener = e -> {
                 int fila = tabla.getSelectedRow();
                 int col = tabla.getSelectedColumn();
@@ -124,6 +146,7 @@ public class Main {
             tabla.getSelectionModel().addListSelectionListener(listener);
             tabla.getColumnModel().getSelectionModel().addListSelectionListener(listener);
 
+            // Manejador para ingresar o modificar fórmulas
             campoFormula.addActionListener(e -> {
                 int fila = tabla.getSelectedRow();
                 int col = tabla.getSelectedColumn();
@@ -133,6 +156,7 @@ public class Main {
                 }
             });
 
+            // Cambiar de hoja desde el JComboBox
             selectorHojas.addActionListener((ActionEvent e) -> {
                 String seleccion = (String) selectorHojas.getSelectedItem();
                 if (seleccion != null) {
@@ -142,6 +166,7 @@ public class Main {
                 }
             });
 
+            // Crear nueva hoja
             btnNuevaHoja.addActionListener(e -> {
                 String nombre = JOptionPane.showInputDialog("Nombre de la nueva hoja:");
                 if (nombre != null && !nombre.trim().isEmpty()) {
@@ -155,11 +180,13 @@ public class Main {
                 }
             });
 
+            // Mostrar ventana de tabla hash
             itemTablaHash.addActionListener(e -> {
                 VentanaHash hashVentana = new VentanaHash();
                 hashVentana.setVisible(true);
             });
 
+            // Guardar hoja en archivo .txt
             itemGuardarHoja.addActionListener(e -> {
                 JFileChooser fileChooser = new JFileChooser();
                 int opcion = fileChooser.showSaveDialog(frame);
@@ -186,6 +213,7 @@ public class Main {
                 }
             });
 
+            // Abrir hoja desde archivo .txt
             itemAbrirHoja.addActionListener(e -> {
                 JFileChooser fileChooser = new JFileChooser();
                 int opcion = fileChooser.showOpenDialog(frame);
@@ -223,6 +251,7 @@ public class Main {
                 }
             });
 
+            // Mostrar ventana
             frame.setVisible(true);
         });
     }
